@@ -1,29 +1,37 @@
 import "./filter.css";
-import data from "../../../data.json";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
-const Filter = ({ handleRegion }) => {
+//Redux
+import { useDispatch } from "react-redux";
+import { reset, setRegion } from "../../../features/countries/countriesSlice";
+
+const Filter = () => {
   const regions = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
   const [filter, setFilter] = useState("");
-  const [displayDroppdown, setDisplayDropdown] = useState(false);
+  const [displayDropDown, setDisplayDropdown] = useState(false);
 
-  // const handleChange = () => {
-  //   setFilter("america");
-  // };
+  const dispatch = useDispatch();
 
   const handleDropdown = () => {
-    setDisplayDropdown(!displayDroppdown);
+    setDisplayDropdown(!displayDropDown);
   };
 
   useEffect(() => {
-    handleRegion(filter);
-  }, [filter]);
+    if (filter !== "") {
+      dispatch(setRegion(filter.toLowerCase()));
+    }
+
+    return () => {
+      dispatch(reset());
+    };
+  }, [dispatch, filter]);
+
   return (
     <section className="filter-container">
       <div className="filter" onClick={handleDropdown}>
         <input
-          type="text"
           readOnly
+          type="text"
           placeholder="Filter by Region"
           value={filter}
           className="filter-input"
@@ -32,8 +40,8 @@ const Filter = ({ handleRegion }) => {
         <i className="fa-solid fa-angle-down"></i>
       </div>
 
-      {displayDroppdown ? (
-        <div className="dropdown ">
+      {displayDropDown ? (
+        <div className="dropdown">
           {regions.map((item, index) => {
             return (
               <div

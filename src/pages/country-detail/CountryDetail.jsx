@@ -1,96 +1,94 @@
-import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
 import "./country-detail.css";
+import { useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 
-import data from "../../data.json";
-
-// Redux
-import { useDispatch, useSelector } from "react-redux";
-import { searchByName } from "../../features/countries/countriesAction";
+//Redux
+import { useSelector, useDispatch } from "react-redux";
+import { searchByCode } from "../../features/countries/countriesAction";
 import { reset } from "../../features/countries/countriesSlice";
 
 const CountryDetail = () => {
-  const { loading, success, error, message, countries, country } = useSelector(
-    (state) => state.countriesReducer
+  const { loading, error, countrySearched } = useSelector(
+    (state) => state.country
   );
-  const [detail, setDetail] = useState();
 
   const dispatch = useDispatch();
   const { code } = useParams();
 
-  // const detail = countries.find((item) => item.name.common === name);
-  // console.log(detail);
-
   useEffect(() => {
     if (code) {
-      console.log("i have code");
-      dispatch(searchByName(code.toLowerCase()));
+      dispatch(searchByCode(code.toLowerCase()));
+    }
+
+    if (error) {
+      console.log(error);
     }
 
     return () => {
       dispatch(reset());
     };
-  }, [code, dispatch]);
-
+  }, [dispatch, code, error]);
   return (
     <section className="country-detail-container">
       <Link className="back-button" to="/">
         <i className="fa-solid fa-arrow-left"></i> Back
       </Link>
-      {country.length > 0 ? (
-        <div className="country-detail-content">
+
+      <div className="country-detail-content">
+        {countrySearched.length > 0 ? (
           <>
             <img
-              src={country[0].flags.png}
-              alt={country[0].flags.alt}
+              src={countrySearched[0].flags.png}
+              alt={countrySearched[0].flags.alt}
               className="country-detail-image"
             />
 
             <div className="country-detail-right">
-              <h1>{country[0].name.common}</h1>
+              <h1>{countrySearched[0].name.common}</h1>
               <div className="details">
                 <div className="detail-left">
                   <p>
-                    Offcial Name: <span>{country[0].name.official}</span>
+                    Offcial Name:{" "}
+                    <span>{countrySearched[0].name.official}</span>
                   </p>
                   <p>
-                    Population: <span>{country[0].population}</span>
+                    Population: <span>{countrySearched[0].population}</span>
                   </p>
                   <p>
-                    Region: <span>{country[0].region}</span>
+                    Region: <span>{countrySearched[0].region}</span>
                   </p>
 
                   <p>
-                    Sub Region: <span>{country[0].subregion}</span>
+                    Sub Region: <span>{countrySearched[0].subregion}</span>
                   </p>
                   <p>
-                    Capital: <span>{country[0].capital}</span>
+                    Capital: <span>{countrySearched[0].capital}</span>
                   </p>
                 </div>
 
                 <div className="detail-right">
                   <p>
-                    Top Level Domain: <span>{country[0].tld[0]}</span>
+                    Top Level Domain: <span>{countrySearched[0].tld[0]}</span>
                   </p>
                   <p>
                     Currencies:
                     <span>
-                      {Object.values(country[0].currencies)
+                      {Object.values(countrySearched[0].currencies)
                         .map((item) => {
                           return item.name;
                         })
-                        .join(", ")}
+                        .join(",")}
                     </span>
                   </p>
 
                   <p>
                     Languages:
                     <span>
-                      {Object.values(country[0].languages)
+                      {Object.values(countrySearched[0].languages)
                         .map((item) => {
                           return item;
                         })
-                        .join(", ")}
+                        .join(",")}
                     </span>
                   </p>
                 </div>
@@ -98,31 +96,24 @@ const CountryDetail = () => {
 
               <div className="border">
                 <p>Border Countries:</p>
-                {country[0].borders ? (
-                  country[0].borders.map((item, index) => {
+                {countrySearched[0].borders ? (
+                  countrySearched[0].borders.map((item, index) => {
                     return (
-                      <Link
-                        className="border-name"
-                        key={index}
-                        to={`/${item}`}
-                        // onClick={() =>
-                        //   dispatch(searchByName(item.toLowerCase()))
-                        // }
-                      >
+                      <Link className="border-name" to={`/${item}`} key={index}>
                         <p>{item}</p>
                       </Link>
                     );
                   })
                 ) : (
-                  <span>None</span>
+                  <span>No Borders</span>
                 )}
               </div>
             </div>
           </>
-        </div>
-      ) : (
-        <div>No country</div>
-      )}
+        ) : (
+          <div>No details found</div>
+        )}
+      </div>
     </section>
   );
 };

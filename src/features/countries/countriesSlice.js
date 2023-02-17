@@ -1,14 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
   showAllCountries,
-  searchByName,
+  searchByCode,
   searchByRegion,
 } from "./countriesAction";
 
 const initialState = {
   loading: false,
-  countries: [],
-  country: [],
+  countriesData: [],
+  countrySearched: [],
+  region: "",
+  searchTerm: "",
   error: false,
   success: false,
   message: "",
@@ -20,10 +22,18 @@ export const countriesSlice = createSlice({
   reducers: {
     reset: (state) => {
       state.loading = false;
-
       state.success = false;
       state.error = false;
       state.message = "";
+      state.countrySearched = [];
+      state.region = "";
+    },
+    setRegion: (state, action) => {
+      state.region = action.payload;
+    },
+
+    setSearchTerm: (state, action) => {
+      state.searchTerm = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -33,46 +43,46 @@ export const countriesSlice = createSlice({
       })
       .addCase(showAllCountries.fulfilled, (state, action) => {
         state.loading = false;
-        state.countries = action.payload;
+        state.countriesData = action.payload;
         state.success = true;
       })
       .addCase(showAllCountries.rejected, (state, action) => {
         state.loading = false;
-        state.countries = [];
+        state.countriesData = [];
         state.error = true;
         state.message = action.payload;
       })
-      .addCase(searchByName.pending, (state) => {
+      .addCase(searchByCode.pending, (state) => {
         state.loading = true;
       })
-      .addCase(searchByName.fulfilled, (state, action) => {
+      .addCase(searchByCode.fulfilled, (state, action) => {
         state.loading = false;
-        state.country = action.payload;
+        state.countrySearched = action.payload;
         state.success = true;
       })
-      .addCase(searchByName.rejected, (state, action) => {
+      .addCase(searchByCode.rejected, (state, action) => {
         state.loading = false;
         state.error = true;
-        state.country = "";
         state.message = action.payload;
+        state.countrySearched = [];
       })
       .addCase(searchByRegion.pending, (state) => {
         state.loading = true;
       })
       .addCase(searchByRegion.fulfilled, (state, action) => {
         state.loading = false;
-        state.countries = action.payload;
+        state.countriesData = action.payload;
         state.success = true;
       })
       .addCase(searchByRegion.rejected, (state, action) => {
         state.loading = false;
         state.error = true;
-        state.countries = [];
         state.message = action.payload;
+        state.countriesData = [];
       });
   },
 });
 
-export const { reset, searchCountryByName } = countriesSlice.actions;
+export const { reset, setRegion, setSearchTerm } = countriesSlice.actions;
 
 export default countriesSlice.reducer;

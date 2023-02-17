@@ -1,51 +1,52 @@
 import "./country.css";
-// import data from "../../data.json";
-import { useEffect, useState } from "react";
-
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-import { useDispatch } from "react-redux";
-import { searchByName } from "../../features/countries/countriesAction";
+//redux
+import { useSelector, useDispatch } from "react-redux";
+import {
+  searchByRegion,
+  showAllCountries,
+} from "../../features/countries/countriesAction";
+import { reset } from "../../features/countries/countriesSlice";
 
-const Country = ({ countries, success, country, region, loading }) => {
-  const [countryData, setCountryData] = useState([]);
+const Country = () => {
+  const { countriesData, loading, success, error, region, searchTerm } =
+    useSelector((state) => state.country);
   const dispatch = useDispatch();
-  useEffect(() => {
-    setCountryData(countries);
-    // if (region) {
-    //   console.log(region);
-    //   setCountryData(countries.filter((item) => item.region === region));
-    // }
 
-    if (country) {
-      setCountryData(
-        countries.filter((item) =>
-          item.name.common.toLowerCase().startsWith(country.toLowerCase())
-        )
-      );
+  useEffect(() => {
+    dispatch(showAllCountries());
+
+    if (region) {
+      dispatch(searchByRegion(region));
     }
-  }, [countries, region, country]);
+
+    if (error) {
+      console.log(error);
+    }
+  }, [dispatch, error, success, region]);
+
+  const data = countriesData.filter((item) =>
+    item.name.common.toLowerCase().includes(searchTerm)
+  );
 
   return (
     <section className="country-container">
-      {loading && <h1>Loading ...</h1>}
-      {!loading &&
-        success &&
-        countryData.map((item, index) => {
+      {loading ? (
+        <h1>Loading...</h1>
+      ) : (
+        data.length > 0 &&
+        data.map((item, index) => {
           return (
-            <Link
-              // onClick={() => dispatch(searchByName(item.cioc.toLowerCase()))}
-              className="country-card"
-              key={index}
-              to={`/${item.cioc}`}
-            >
+            <Link className="country-card" key={index} to={`/${item.cioc}`}>
               <img
                 src={item.flags.png}
                 alt={item.flags.alt}
                 className="country-image"
               />
               <div className="country-content">
-                <h3> {item.name.common}</h3>
+                <h3>{item.name.common} </h3>
                 <p>
                   Population: <span>{item.population}</span>
                 </p>
@@ -58,7 +59,8 @@ const Country = ({ countries, success, country, region, loading }) => {
               </div>
             </Link>
           );
-        })}
+        })
+      )}
     </section>
   );
 };

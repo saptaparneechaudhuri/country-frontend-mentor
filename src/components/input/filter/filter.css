@@ -46,6 +46,10 @@
   color: var(--color-white);
 }
 
+.main-container.dark .filter-input {
+  color: var(--color-white);
+}
+
 .filter-input:focus {
   outline: none;
 }
